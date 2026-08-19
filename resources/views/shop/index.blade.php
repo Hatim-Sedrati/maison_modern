@@ -10,32 +10,64 @@
         filled($filters['category']) => $categories->firstWhere('slug', $filters['category'])?->name ?? 'Shop',
         default => 'Shop',
     };
+
+    $pageIntro = match ($pageTitle) {
+        'Women' => 'Contemporary pieces designed for everyday elegance.',
+        'Men' => 'Refined essentials with a modern Moroccan sensibility.',
+        'Accessories' => 'The finishing details that complete every look.',
+        'New arrivals' => 'Discover the latest Maison Modern collection.',
+        'Search' => null,
+        'Unisex' => 'Pieces designed to move easily between wardrobes.',
+        default => 'Modern Moroccan fashion for everyday elegance.',
+    };
+
+    $isSearch = filled($filters['search']);
+
+    $breadcrumbs = [
+        ['label' => 'Home', 'href' => route('home')],
+    ];
+
+    if ($pageTitle !== 'Shop') {
+        $breadcrumbs[] = ['label' => 'Shop', 'href' => route('shop.index')];
+    }
+
+    $breadcrumbs[] = ['label' => $pageTitle];
 @endphp
 
 @section('title', $pageTitle)
 
 @section('content')
-    <div class="mx-auto max-w-7xl px-4 py-10 md:px-6 md:py-14">
-        <header class="mb-10">
-            <p class="text-xs uppercase tracking-[0.25em] text-muted">Shop</p>
+    <div class="page-shell py-10 md:py-14">
+        <x-breadcrumbs class="mb-8" :items="$breadcrumbs" />
+
+        <header class="mb-10 md:mb-12">
+            <p class="text-[11px] uppercase tracking-[0.22em] text-muted">Shop</p>
             <h1 class="mt-2 section-title">{{ $pageTitle }}</h1>
-            @if ($filters['search'])
-                <p class="mt-3 text-sm text-muted">Results for “{{ $filters['search'] }}”</p>
+            @if ($isSearch)
+                <p class="mt-3 text-sm text-charcoal-light">Results for “{{ $filters['search'] }}”</p>
+            @elseif ($pageIntro)
+                <p class="mt-4 max-w-xl text-sm leading-relaxed text-charcoal-light">{{ $pageIntro }}</p>
             @endif
         </header>
 
-        <div class="grid gap-10 lg:grid-cols-[240px_minmax(0,1fr)] lg:gap-14">
+        <div class="grid gap-10 lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-16">
             <aside>
                 <x-product-filters :filters="$filters" :categories="$categories" />
             </aside>
 
             <div>
-                <p class="mb-6 text-xs uppercase tracking-widest text-muted">{{ $products->total() }} {{ \Illuminate\Support\Str::plural('piece', $products->total()) }}</p>
+                <p class="mb-6 text-[11px] uppercase tracking-[0.16em] text-muted">{{ $products->total() }} {{ \Illuminate\Support\Str::plural('piece', $products->total()) }}</p>
 
-                <x-product-grid :products="$products" />
+                <x-product-grid
+                    :products="$products"
+                    :empty-title="$isSearch ? 'No products found' : 'This collection is currently empty.'"
+                    :empty-text="$isSearch ? 'Try another search or explore our collections.' : 'New pieces will appear here as they are added.'"
+                    :empty-href="route('shop.new-arrivals')"
+                    empty-action="Continue Shopping"
+                />
 
                 @if ($products->hasPages())
-                    <div class="mt-12">
+                    <div class="mt-14">
                         {{ $products->links('pagination.storefront') }}
                     </div>
                 @endif

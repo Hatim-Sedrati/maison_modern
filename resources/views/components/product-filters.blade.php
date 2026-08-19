@@ -9,87 +9,73 @@
     $action = $action ?? route('shop.index');
 @endphp
 
-<form
-    method="GET"
-    action="{{ $action }}"
-    class="space-y-8"
+<div
     x-data="{ open: false }"
+    @keydown.escape.window="open = false"
+    x-effect="document.body.classList.toggle('overflow-hidden', open)"
 >
-    <div class="flex items-center justify-between lg:hidden">
+    <div class="flex items-center justify-between gap-3 lg:hidden">
         <button
             type="button"
             class="btn-secondary w-full"
-            @click="open = !open"
+            @click="open = true"
             :aria-expanded="open.toString()"
+            aria-controls="shop-filters-drawer"
         >
             Filter &amp; sort
         </button>
     </div>
 
-    <div class="space-y-8" :class="open ? '' : 'max-lg:hidden'">
-        <div>
-            <label for="shop-search" class="mb-2 block text-xs uppercase tracking-widest">Search</label>
-            <input
-                id="shop-search"
-                type="search"
-                name="search"
-                value="{{ $filters['search'] }}"
-                placeholder="Name, description, SKU"
-                class="input-field"
-            >
-        </div>
+    <form method="GET" action="{{ $action }}" class="mt-0 hidden space-y-8 lg:block">
+        @if ($filters['search'])
+            <input type="hidden" name="search" value="{{ $filters['search'] }}">
+        @endif
 
-        @unless ($hideCategory)
-            <fieldset>
-                <legend class="mb-3 text-xs uppercase tracking-widest">Category</legend>
-                <div class="space-y-2">
-                    <label class="flex min-h-11 items-center gap-2 text-sm">
-                        <input type="radio" name="category" value="" @checked(! $filters['category']) class="accent-charcoal">
-                        All
-                    </label>
-                    @foreach ($categories as $category)
-                        <label class="flex min-h-11 items-center gap-2 text-sm">
-                            <input type="radio" name="category" value="{{ $category->slug }}" @checked($filters['category'] === $category->slug) class="accent-charcoal">
-                            {{ $category->name }}
-                        </label>
-                    @endforeach
-                </div>
-            </fieldset>
-        @endunless
-
-        <fieldset>
-            <legend class="mb-3 text-xs uppercase tracking-widest">Gender</legend>
-            <div class="space-y-2">
-                <label class="flex min-h-11 items-center gap-2 text-sm">
-                    <input type="radio" name="gender" value="" @checked(! $filters['gender']) class="accent-charcoal">
-                    All
-                </label>
-                @foreach (\App\Enums\ProductGender::cases() as $gender)
-                    <label class="flex min-h-11 items-center gap-2 text-sm">
-                        <input type="radio" name="gender" value="{{ $gender->value }}" @checked($filters['gender'] === $gender->value) class="accent-charcoal">
-                        {{ $gender->getLabel() }}
-                    </label>
-                @endforeach
-            </div>
-        </fieldset>
-
-        <div>
-            <label class="flex min-h-11 items-center gap-2 text-sm">
-                <input type="checkbox" name="in_stock" value="1" @checked($filters['in_stock']) class="accent-charcoal">
-                In stock
-            </label>
-        </div>
-
-        <div>
-            <label for="shop-sort" class="mb-2 block text-xs uppercase tracking-widest">Sort</label>
-            <select id="shop-sort" name="sort" class="input-field">
-                <option value="featured" @selected($filters['sort'] === 'featured')>Featured</option>
-                <option value="newest" @selected($filters['sort'] === 'newest')>Newest</option>
-                <option value="price_asc" @selected($filters['sort'] === 'price_asc')>Price: low to high</option>
-                <option value="price_desc" @selected($filters['sort'] === 'price_desc')>Price: high to low</option>
-            </select>
-        </div>
+        @include('components.partials.filter-fields', ['sortId' => 'desktop', 'hideCategory' => $hideCategory, 'filters' => $filters, 'categories' => $categories])
 
         <button type="submit" class="btn-primary w-full">Apply</button>
+    </form>
+
+    <div
+        id="shop-filters-drawer"
+        x-show="open"
+        x-cloak
+        class="fixed inset-0 z-[60] lg:hidden"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Filter and sort"
+    >
+        <div class="absolute inset-0 bg-charcoal/40" @click="open = false" x-transition.opacity.duration.200ms></div>
+
+        <form
+            method="GET"
+            action="{{ $action }}"
+            class="absolute inset-x-0 bottom-0 max-h-[85vh] overflow-y-auto bg-cream px-5 pb-8 pt-5"
+            x-show="open"
+            x-transition:enter="transition duration-300 ease-out"
+            x-transition:enter-start="translate-y-full"
+            x-transition:enter-end="translate-y-0"
+            x-transition:leave="transition duration-200 ease-in"
+            x-transition:leave-start="translate-y-0"
+            x-transition:leave-end="translate-y-full"
+            @click.stop
+        >
+            <div class="mb-6 flex items-center justify-between">
+                <h2 class="text-[11px] uppercase tracking-[0.18em]">Filter &amp; sort</h2>
+                <button type="button" class="min-h-11 px-2 text-[11px] uppercase tracking-[0.16em]" @click="open = false" aria-label="Close filters">
+                    Close
+                </button>
+            </div>
+
+            @if ($filters['search'])
+                <input type="hidden" name="search" value="{{ $filters['search'] }}">
+            @endif
+
+            <div class="space-y-7">
+                @include('components.partials.filter-fields', ['sortId' => 'mobile', 'hideCategory' => $hideCategory, 'filters' => $filters, 'categories' => $categories])
+            </div>
+
+            <button type="submit" class="btn-primary mt-8 w-full">Apply</button>
+        </form>
     </div>
-</form>
+</div>

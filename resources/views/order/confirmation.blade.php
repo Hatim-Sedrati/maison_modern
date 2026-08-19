@@ -3,24 +3,24 @@
 @section('title', 'Order confirmed')
 
 @section('content')
-    <div class="mx-auto max-w-xl px-6 py-16 md:py-24">
+    <div class="mx-auto max-w-xl px-5 py-16 md:py-24">
         <div class="text-center">
-            <p class="text-xs uppercase tracking-[0.3em] text-muted">Maison Modern</p>
-            <h1 class="mt-4 section-title">Thank you for your order</h1>
-            <p class="mt-6 text-sm leading-relaxed text-charcoal-light">
-                Your order has been received and we will contact you to confirm it.
+            <p class="text-[11px] uppercase tracking-[0.28em] text-muted">Maison Modern</p>
+            <h1 class="mt-4 font-display text-3xl tracking-wide text-ink md:text-4xl">Order confirmed</h1>
+            <p class="mt-5 text-sm leading-relaxed text-charcoal-light">
+                Thank you. Your order has been received and we will contact you to confirm it.
                 Payment is Cash on Delivery — you pay when you receive your order.
             </p>
         </div>
 
-        <div class="mt-10 border border-ivory-dark bg-white/50 px-6 py-8">
-            <p class="text-xs uppercase tracking-widest text-muted">Order number</p>
+        <div class="mt-10 bg-ivory px-6 py-8">
+            <p class="text-[11px] uppercase tracking-[0.16em] text-muted">Order number</p>
             <p class="mt-1 text-lg tracking-wide">#{{ $order->order_number }}</p>
 
-            <p class="mt-6 text-xs uppercase tracking-widest text-muted">Payment</p>
+            <p class="mt-6 text-[11px] uppercase tracking-[0.16em] text-muted">Payment</p>
             <p class="mt-1 text-sm">{{ $order->payment_method->getLabel() }}</p>
 
-            <p class="mt-6 text-xs uppercase tracking-widest text-muted">Delivery</p>
+            <p class="mt-6 text-[11px] uppercase tracking-[0.16em] text-muted">Delivery</p>
             <p class="mt-1 text-sm">{{ $order->customer_name }}</p>
             <p class="text-sm text-charcoal-light">{{ $order->address }}</p>
             <p class="text-sm text-charcoal-light">{{ $order->city }}@if ($order->postal_code), {{ $order->postal_code }}@endif</p>
@@ -28,8 +28,8 @@
                 <p class="mt-1 text-sm text-charcoal-light">{{ $order->phone }}</p>
             @endif
 
-            <p class="mt-6 text-xs uppercase tracking-widest text-muted">Items</p>
-            <ul class="mt-3 divide-y divide-ivory-dark" role="list">
+            <p class="mt-6 text-[11px] uppercase tracking-[0.16em] text-muted">Items</p>
+            <ul class="mt-3 divide-y divide-sand" role="list">
                 @foreach ($order->items as $item)
                     <li class="flex justify-between gap-4 py-3 text-sm">
                         <div>
@@ -45,7 +45,7 @@
                 @endforeach
             </ul>
 
-            <dl class="mt-4 space-y-2 border-t border-ivory-dark pt-4 text-sm">
+            <dl class="mt-4 space-y-2 border-t border-sand pt-4 text-sm">
                 <div class="flex justify-between">
                     <dt>Subtotal</dt>
                     <dd>{{ \App\Support\Money::format($order->subtotal) }}</dd>
@@ -78,7 +78,7 @@
         @endif
 
         <div class="mt-8 text-center">
-            <a href="{{ route('shop.index') }}" class="btn-secondary w-full">Continue shopping</a>
+            <a href="{{ route('shop.index') }}" class="btn-secondary w-full">Continue Shopping</a>
         </div>
     </div>
 @endsection

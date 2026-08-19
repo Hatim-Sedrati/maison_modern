@@ -6,17 +6,17 @@
     @if ($items->isEmpty())
         <x-empty-state
             title="Your cart is empty"
-            text="Discover our latest collection."
-            :href="route('shop.index')"
-            action="Shop now"
+            text="Discover something you'll love."
+            :href="route('shop.new-arrivals')"
+            action="Shop New Arrivals"
         />
     @else
         @if ($error)
             <p class="mb-6 text-sm text-red-800" role="alert">{{ $error }}</p>
         @endif
 
-        <div class="grid gap-12 lg:grid-cols-[minmax(0,1.4fr)_minmax(280px,0.8fr)]">
-            <ul class="divide-y divide-ivory-dark border-y border-ivory-dark" role="list">
+        <div class="grid gap-12 lg:grid-cols-[minmax(0,1.45fr)_minmax(280px,0.75fr)] lg:gap-16">
+            <ul class="divide-y divide-sand border-y border-sand" role="list">
                 @foreach ($items as $item)
                     @php
                         $product = $item['product'];
@@ -24,7 +24,7 @@
                         $image = $product->images->firstWhere('is_primary', true) ?? $product->images->first();
                         $max = $product->availableStock($variant);
                     @endphp
-                    <li class="flex gap-4 py-6" wire:key="{{ $item['key'] }}">
+                    <li class="flex gap-4 py-6 md:gap-6" wire:key="{{ $item['key'] }}">
                         <a href="{{ route('product.show', $product) }}" class="w-24 shrink-0 bg-ivory-dark md:w-28">
                             @if ($image)
                                 <img src="{{ $image->urlFor('thumb') }}" alt="{{ $product->name }}" class="aspect-[3/4] w-full object-cover" loading="lazy">
@@ -45,19 +45,24 @@
                                     @if ($variant?->size)
                                         <p class="text-xs text-muted">Size: {{ $variant->size }}</p>
                                     @endif
-                                    <p class="mt-2 text-sm">{{ Money::format($item['unit_price']) }}</p>
+                                    <p class="mt-2 text-sm text-charcoal-light">{{ Money::format($item['unit_price']) }}</p>
+                                    @if ($max < 1)
+                                        <p class="mt-2 text-xs text-red-800">This item is currently unavailable.</p>
+                                    @elseif ($item['quantity'] > $max)
+                                        <p class="mt-2 text-xs text-red-800">Only {{ $max }} available.</p>
+                                    @endif
                                 </div>
                                 <button
                                     type="button"
                                     wire:click="remove('{{ $item['key'] }}')"
-                                    class="text-xs uppercase tracking-widest text-muted hover:text-charcoal"
+                                    class="text-[11px] uppercase tracking-[0.16em] text-muted transition-colors hover:text-charcoal"
                                 >
                                     Remove
                                 </button>
                             </div>
 
                             <div class="mt-4 flex items-center justify-between gap-4">
-                                <div class="flex items-center border border-ivory-dark" role="group" aria-label="Quantity for {{ $product->name }}">
+                                <div class="flex items-center border border-sand" role="group" aria-label="Quantity for {{ $product->name }}">
                                     <button
                                         type="button"
                                         wire:click="updateQuantity('{{ $item['key'] }}', {{ $item['quantity'] - 1 }})"
@@ -80,8 +85,8 @@
                 @endforeach
             </ul>
 
-            <aside class="h-fit border border-ivory-dark bg-white/40 p-6">
-                <h2 class="text-xs uppercase tracking-widest">Summary</h2>
+            <aside class="h-fit bg-ivory p-6 md:p-8">
+                <h2 class="text-[11px] uppercase tracking-[0.16em]">Summary</h2>
                 <dl class="mt-6 space-y-3 text-sm">
                     <div class="flex justify-between">
                         <dt>Subtotal</dt>
@@ -91,16 +96,16 @@
                         <dt>Delivery</dt>
                         <dd>{{ Money::isZero($deliveryFee) ? 'Free' : Money::format($deliveryFee) }}</dd>
                     </div>
-                    <div class="flex justify-between border-t border-ivory-dark pt-3 text-base">
+                    <div class="flex justify-between border-t border-sand pt-3 text-base">
                         <dt>Total</dt>
                         <dd>{{ Money::format($total) }}</dd>
                     </div>
                 </dl>
 
-                <p class="mt-4 text-xs leading-relaxed text-muted">Cash on delivery. Totals are confirmed when you place your order.</p>
+                <p class="mt-4 text-xs leading-relaxed text-muted">Cash on Delivery. Totals are confirmed when you place your order.</p>
 
-                <a href="{{ route('checkout.index') }}" class="btn-primary mt-6 w-full">Proceed to checkout</a>
-                <a href="{{ route('shop.index') }}" class="btn-secondary mt-3 w-full">Continue shopping</a>
+                <a href="{{ route('checkout.index') }}" class="btn-primary mt-6 w-full">Proceed to Checkout</a>
+                <a href="{{ route('shop.index') }}" class="btn-ghost mt-3 w-full">Continue Shopping</a>
             </aside>
         </div>
     @endif

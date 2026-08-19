@@ -1,58 +1,62 @@
 <div
     x-show="menuOpen"
     x-cloak
+    id="mobile-navigation"
     class="fixed inset-0 z-[60] lg:hidden"
     role="dialog"
     aria-modal="true"
     aria-label="Menu"
+    @keydown.escape.window="menuOpen = false"
 >
-    <div class="absolute inset-0 bg-charcoal/40" @click="menuOpen = false"></div>
+    <div
+        class="absolute inset-0 bg-charcoal/40"
+        @click="menuOpen = false"
+        x-show="menuOpen"
+        x-transition.opacity.duration.200ms
+    ></div>
 
-    <nav class="absolute left-0 top-0 flex h-full w-[min(100%,320px)] flex-col overflow-y-auto bg-ivory p-6">
-        <div class="mb-8 flex items-center justify-between">
-            <img src="{{ asset('images/logo.png') }}" alt="Maison Modern" class="h-8 w-auto max-w-[180px] object-contain">
-            <button type="button" class="min-h-12 px-3 text-sm uppercase tracking-widest" @click="menuOpen = false" aria-label="Close menu">
+    <nav
+        class="absolute left-0 top-0 flex h-full w-[min(100%,22rem)] flex-col overflow-y-auto bg-cream px-6 py-5"
+        x-show="menuOpen"
+        x-transition:enter="transition duration-300 ease-out"
+        x-transition:enter-start="-translate-x-full"
+        x-transition:enter-end="translate-x-0"
+        x-transition:leave="transition duration-200 ease-in"
+        x-transition:leave-start="translate-x-0"
+        x-transition:leave-end="-translate-x-full"
+    >
+        <div class="mb-10 flex items-center justify-between">
+            <img src="{{ asset('images/logo.png') }}" alt="Maison Modern" class="h-7 w-auto max-w-[160px] object-contain">
+            <button type="button" class="flex min-h-12 min-w-12 items-center justify-center text-[11px] uppercase tracking-[0.16em]" @click="menuOpen = false" aria-label="Close menu">
                 Close
             </button>
         </div>
 
-        <div class="flex flex-col">
-            <a href="{{ route('shop.new-arrivals') }}" class="min-h-12 py-3 text-sm uppercase tracking-widest" @click="menuOpen = false">New Arrivals</a>
-            <a href="{{ route('shop.women') }}" class="min-h-12 py-3 text-sm uppercase tracking-widest" @click="menuOpen = false">Women</a>
-            <a href="{{ route('shop.men') }}" class="min-h-12 py-3 text-sm uppercase tracking-widest" @click="menuOpen = false">Men</a>
-            <a href="{{ route('shop.accessories') }}" class="min-h-12 py-3 text-sm uppercase tracking-widest" @click="menuOpen = false">Accessories</a>
+        <div class="flex flex-1 flex-col">
+            <a href="{{ route('shop.new-arrivals') }}" class="min-h-12 py-3 text-lg tracking-wide" @click="menuOpen = false">New Arrivals</a>
+            <a href="{{ route('shop.women') }}" class="min-h-12 py-3 text-lg tracking-wide" @click="menuOpen = false">Women</a>
+            <a href="{{ route('shop.men') }}" class="min-h-12 py-3 text-lg tracking-wide" @click="menuOpen = false">Men</a>
+            <a href="{{ route('shop.accessories') }}" class="min-h-12 py-3 text-lg tracking-wide" @click="menuOpen = false">Accessories</a>
 
-            <div class="my-4 border-t border-ivory-dark"></div>
-            <p class="mb-2 text-xs uppercase tracking-widest text-muted">Categories</p>
+            @if ($navCategories->isNotEmpty())
+                <div class="my-5 border-t border-sand"></div>
+                <p class="mb-1 text-[11px] uppercase tracking-[0.18em] text-muted">Categories</p>
 
-            @forelse ($navCategories as $category)
-                <a
-                    href="{{ route('category.show', $category) }}"
-                    class="min-h-12 py-3 text-sm text-charcoal-light"
-                    @click="menuOpen = false"
-                >
-                    {{ $category->name }}
-                </a>
-            @empty
-                <p class="py-2 text-sm text-muted">Categories will appear here.</p>
-            @endforelse
-
-            <div class="my-4 border-t border-ivory-dark"></div>
-
-            <form action="{{ route('shop.index') }}" method="GET" class="mt-2">
-                <label for="mobile-search" class="mb-2 block text-xs uppercase tracking-widest text-muted">Search</label>
-                <div class="flex gap-2">
-                    <input
-                        id="mobile-search"
-                        type="search"
-                        name="search"
-                        value="{{ request('search') }}"
-                        placeholder="Search products"
-                        class="input-field"
+                @foreach ($navCategories as $category)
+                    <a
+                        href="{{ route('category.show', $category) }}"
+                        class="min-h-12 py-3 text-sm text-charcoal-light"
+                        @click="menuOpen = false"
                     >
-                    <button type="submit" class="btn-primary shrink-0 px-4">Go</button>
-                </div>
-            </form>
+                        {{ $category->name }}
+                    </a>
+                @endforeach
+            @endif
+
+            <div class="mt-auto border-t border-sand pt-6">
+                <a href="{{ route('pages.shipping') }}" class="block min-h-11 py-2 text-sm text-charcoal-light" @click="menuOpen = false">Delivery</a>
+                <a href="{{ route('pages.contact') }}" class="block min-h-11 py-2 text-sm text-charcoal-light" @click="menuOpen = false">Contact</a>
+            </div>
         </div>
     </nav>
 </div>

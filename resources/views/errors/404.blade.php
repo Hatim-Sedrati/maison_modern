@@ -5,8 +5,8 @@
 @section('content')
     <x-empty-state
         title="Page not found"
-        text="This page is not available. Continue shopping our latest collection."
-        :href="route('shop.index')"
-        action="Shop now"
+        text="Let's get you back to Maison Modern."
+        :href="route('home')"
+        action="Return Home"
     />
 @endsection
