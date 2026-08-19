@@ -3,28 +3,82 @@
 @section('title', 'Order confirmed')
 
 @section('content')
-    <div class="mx-auto max-w-xl px-6 py-16 text-center md:py-24">
-        <p class="text-xs uppercase tracking-[0.3em] text-muted">Maison Modern</p>
-        <h1 class="mt-4 section-title">Order confirmed</h1>
-        <p class="mt-6 text-sm leading-relaxed text-charcoal-light">
-            Thank you for shopping with Maison Modern. Your order has been received successfully.
-        </p>
+    <div class="mx-auto max-w-xl px-6 py-16 md:py-24">
+        <div class="text-center">
+            <p class="text-xs uppercase tracking-[0.3em] text-muted">Maison Modern</p>
+            <h1 class="mt-4 section-title">Thank you for your order</h1>
+            <p class="mt-6 text-sm leading-relaxed text-charcoal-light">
+                Your order has been received and we will contact you to confirm it.
+                Payment is Cash on Delivery — you pay when you receive your order.
+            </p>
+        </div>
 
-        <div class="mt-10 border border-ivory-dark bg-white/50 px-6 py-8 text-left">
+        <div class="mt-10 border border-ivory-dark bg-white/50 px-6 py-8">
             <p class="text-xs uppercase tracking-widest text-muted">Order number</p>
             <p class="mt-1 text-lg tracking-wide">#{{ $order->order_number }}</p>
 
             <p class="mt-6 text-xs uppercase tracking-widest text-muted">Payment</p>
             <p class="mt-1 text-sm">{{ $order->payment_method->getLabel() }}</p>
 
-            <p class="mt-6 text-xs uppercase tracking-widest text-muted">Total</p>
-            <p class="mt-1 text-sm">{{ \App\Support\Money::format($order->total) }}</p>
+            <p class="mt-6 text-xs uppercase tracking-widest text-muted">Delivery</p>
+            <p class="mt-1 text-sm">{{ $order->customer_name }}</p>
+            <p class="text-sm text-charcoal-light">{{ $order->address }}</p>
+            <p class="text-sm text-charcoal-light">{{ $order->city }}@if ($order->postal_code), {{ $order->postal_code }}@endif</p>
+            @if ($order->phone)
+                <p class="mt-1 text-sm text-charcoal-light">{{ $order->phone }}</p>
+            @endif
+
+            <p class="mt-6 text-xs uppercase tracking-widest text-muted">Items</p>
+            <ul class="mt-3 divide-y divide-ivory-dark" role="list">
+                @foreach ($order->items as $item)
+                    <li class="flex justify-between gap-4 py-3 text-sm">
+                        <div>
+                            <p>{{ $item->product_name }}</p>
+                            <p class="text-xs text-muted">
+                                Qty {{ $item->quantity }}
+                                @if ($item->selected_color) · {{ $item->selected_color }} @endif
+                                @if ($item->selected_size) · {{ $item->selected_size }} @endif
+                            </p>
+                        </div>
+                        <p class="shrink-0">{{ \App\Support\Money::format($item->total) }}</p>
+                    </li>
+                @endforeach
+            </ul>
+
+            <dl class="mt-4 space-y-2 border-t border-ivory-dark pt-4 text-sm">
+                <div class="flex justify-between">
+                    <dt>Subtotal</dt>
+                    <dd>{{ \App\Support\Money::format($order->subtotal) }}</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt>Delivery</dt>
+                    <dd>{{ \App\Support\Money::isZero($order->delivery_fee) ? 'Free' : \App\Support\Money::format($order->delivery_fee) }}</dd>
+                </div>
+                <div class="flex justify-between pt-2 text-base">
+                    <dt>Total</dt>
+                    <dd>{{ \App\Support\Money::format($order->total) }}</dd>
+                </div>
+            </dl>
         </div>
 
-        <p class="mt-8 text-sm leading-relaxed text-muted">
-            We will contact you shortly to confirm your order. Payment is made in cash when you receive it.
-        </p>
+        @if ($whatsappUrl)
+            <div class="mt-8 text-center">
+                <a
+                    href="{{ $whatsappUrl }}"
+                    class="btn-primary w-full"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Confirm your order on WhatsApp
+                </a>
+                <p class="mt-3 text-xs leading-relaxed text-muted">
+                    Opens WhatsApp with your order details so we can confirm it with you.
+                </p>
+            </div>
+        @endif
 
-        <a href="{{ route('shop.index') }}" class="btn-primary mt-10">Continue shopping</a>
+        <div class="mt-8 text-center">
+            <a href="{{ route('shop.index') }}" class="btn-secondary w-full">Continue shopping</a>
+        </div>
     </div>
 @endsection

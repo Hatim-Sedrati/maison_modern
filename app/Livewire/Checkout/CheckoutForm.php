@@ -7,6 +7,7 @@ use App\Exceptions\InsufficientStockException;
 use App\Services\Cart;
 use App\Services\OrderService;
 use App\Support\Money;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
 class CheckoutForm extends Component
@@ -58,6 +59,11 @@ class CheckoutForm extends Component
             $this->redirect(route('order.confirmation', $order));
         } catch (InsufficientStockException|CartException $e) {
             $this->addError('cart', $e->getMessage());
+        } catch (ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            report($e);
+            $this->addError('cart', 'We could not place your order. Please try again.');
         }
     }
 

@@ -13,6 +13,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -24,10 +25,13 @@ use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use UnitEnum;
 
@@ -128,32 +132,59 @@ class ProductResource extends Resource
                     ])
                     ->collapsed(),
                 Section::make('Images')
+                    ->description('Upload fashion photos. They are stored on Cloudinary and optimized for the storefront. Mark one image as primary.')
                     ->schema([
                         Repeater::make('images')
                             ->relationship()
                             ->schema([
                                 FileUpload::make('path')
+                                    ->label('Image')
                                     ->image()
+                                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                                    ->maxSize(5120)
                                     ->directory('products')
                                     ->disk('public')
                                     ->visibility('public')
-                                    ->required(),
-                                TextInput::make('public_id')
-                                    ->maxLength(255)
-                                    ->helperText('Reserved for Cloudinary.'),
-                                TextInput::make('sort_order')
-                                    ->numeric()
-                                    ->default(0)
-                                    ->minValue(0),
-                                Toggle::make('is_primary')->default(false),
+                                    ->required()
+                                    ->imagePreviewHeight('180')
+                                    ->openable()
+                                    ->downloadable(false)
+                                    ->getUploadedFileUsing(function ($component, string $file): ?array {
+                                        if (str_starts_with($file, 'http://') || str_starts_with($file, 'https://')) {
+                                            return [
+                                                'name' => basename((string) (parse_url($file, PHP_URL_PATH) ?: $file)),
+                                                'size' => 0,
+                                                'type' => 'image/jpeg',
+                                                'url' => $file,
+                                            ];
+                                        }
+
+                                        $storage = Storage::disk('public');
+
+                                        if (! $storage->exists($file)) {
+                                            return null;
+                                        }
+
+                                        return [
+                                            'name' => basename($file),
+                                            'size' => $storage->size($file),
+                                            'type' => $storage->mimeType($file) ?: 'image/jpeg',
+                                            'url' => $storage->url($file),
+                                        ];
+                                    })
+                                    ->columnSpanFull(),
+                                Hidden::make('public_id'),
+                                Toggle::make('is_primary')
+                                    ->label('Primary image')
+                                    ->helperText('Shown first on product cards and the product page.'),
                             ])
-                            ->columns(2)
+                            ->columns(1)
                             ->collapsible()
                             ->reorderable('sort_order')
                             ->defaultItems(0)
-                            ->addActionLabel('Add image'),
-                    ])
-                    ->collapsed(),
+                            ->addActionLabel('Add image')
+                            ->itemLabel(fn (array $state): string => ! empty($state['is_primary']) ? 'Primary image' : 'Gallery image'),
+                    ]),
             ]);
     }
 
@@ -161,6 +192,11 @@ class ProductResource extends Resource
     {
         return $table
             ->columns([
+                ImageColumn::make('primary_image')
+                    ->label('Image')
+                    ->getStateUsing(fn (Product $record): ?string => $record->primaryImage?->urlFor('thumb')
+                        ?? $record->images->first()?->urlFor('thumb'))
+                    ->square(),
                 TextColumn::make('name')->searchable()->sortable(),
                 TextColumn::make('category.name')->sortable(),
                 TextColumn::make('gender')->badge(),
@@ -194,5 +230,10 @@ class ProductResource extends Resource
             'create' => CreateProduct::route('/create'),
             'edit' => EditProduct::route('/{record}/edit'),
         ];
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->with(['category', 'primaryImage', 'images']);
     }
 }

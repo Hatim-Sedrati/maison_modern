@@ -19,10 +19,10 @@
                 @foreach ($images as $index => $image)
                     <div class="w-full shrink-0 snap-center">
                         <img
-                            src="{{ $image->url }}"
+                            src="{{ $image->urlFor('gallery') }}"
                             alt="{{ $product->name }}{{ $count > 1 ? ' — image '.($index + 1) : '' }}"
                             class="aspect-[3/4] w-full object-cover"
-                            @if ($index === 0) fetchpriority="high" @else loading="lazy" @endif
+                            @if ($index === 0) fetchpriority="high" loading="eager" @else loading="lazy" @endif
                             decoding="async"
                         >
                     </div>
@@ -38,7 +38,7 @@
             <div class="bg-ivory-dark">
                 @if ($active)
                     <img
-                        src="{{ $active->url }}"
+                        src="{{ $active->urlFor('gallery') }}"
                         alt="{{ $product->name }}"
                         class="aspect-[3/4] w-full object-cover"
                         fetchpriority="high"
@@ -58,7 +58,7 @@
                             aria-current="{{ $activeIndex === $index ? 'true' : 'false' }}"
                         >
                             <img
-                                src="{{ $image->url }}"
+                                src="{{ $image->urlFor('thumb') }}"
                                 alt=""
                                 class="aspect-[3/4] w-full object-cover"
                                 loading="lazy"

@@ -25,7 +25,7 @@
             <div class="min-h-[320px] bg-ivory-dark lg:min-h-[560px]">
                 @if ($heroImage)
                     <img
-                        src="{{ $heroImage->url }}"
+                        src="{{ $heroImage->urlFor('hero') }}"
                         alt="{{ $heroProduct->name }}"
                         class="h-full w-full object-cover"
                         fetchpriority="high"

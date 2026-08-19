@@ -18,6 +18,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -58,7 +59,8 @@ class OrderResource extends Resource
             ->components([
                 Select::make('status')
                     ->options(OrderStatus::class)
-                    ->required(),
+                    ->required()
+                    ->helperText('Update the order as you confirm, pack, ship, or cancel it.'),
             ]);
     }
 
@@ -70,7 +72,10 @@ class OrderResource extends Resource
                     ->schema([
                         TextEntry::make('order_number'),
                         TextEntry::make('status')->badge(),
-                        TextEntry::make('payment_method')->badge(),
+                        TextEntry::make('payment_method')
+                            ->badge()
+                            ->label('Payment')
+                            ->formatStateUsing(fn ($state) => $state?->getLabel() ?? 'Cash on Delivery'),
                         TextEntry::make('created_at')->dateTime(),
                     ])
                     ->columns(2),
@@ -117,8 +122,11 @@ class OrderResource extends Resource
                 TextColumn::make('customer_name')->searchable(),
                 TextColumn::make('phone')->searchable(),
                 TextColumn::make('city')->toggleable(),
+                TextColumn::make('items_count')->counts('items')->label('Items'),
                 TextColumn::make('total')->money('MAD')->sortable(),
-                TextColumn::make('status')->badge(),
+                SelectColumn::make('status')
+                    ->options(OrderStatus::class)
+                    ->sortable(),
                 TextColumn::make('payment_method')->badge()->toggleable(),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])

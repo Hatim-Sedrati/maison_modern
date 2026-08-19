@@ -15,26 +15,24 @@
     <a href="{{ route('product.show', $product) }}" class="block">
         <div class="relative overflow-hidden bg-ivory-dark">
             @if ($primary)
-                <img
-                    src="{{ $primary->url }}"
-                    alt="{{ $product->name }}"
+                <x-product-image
+                    :image="$primary"
+                    :alt="$product->name"
+                    preset="card"
                     class="product-card-image"
-                    loading="lazy"
-                    decoding="async"
-                    width="600"
-                    height="800"
-                >
+                    width="800"
+                    height="1067"
+                />
                 @if ($secondary)
-                    <img
-                        src="{{ $secondary->url }}"
+                    <x-product-image
+                        :image="$secondary"
                         alt=""
+                        preset="card"
                         class="product-card-image absolute inset-0 hidden opacity-0 transition-opacity duration-300 group-hover:opacity-100 md:block"
-                        loading="lazy"
-                        decoding="async"
-                        width="600"
-                        height="800"
+                        width="800"
+                        height="1067"
                         aria-hidden="true"
-                    >
+                    />
                 @endif
             @else
                 <div class="product-card-image flex items-center justify-center">

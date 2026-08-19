@@ -27,7 +27,7 @@
                     <li class="flex gap-4 py-6" wire:key="{{ $item['key'] }}">
                         <a href="{{ route('product.show', $product) }}" class="w-24 shrink-0 bg-ivory-dark md:w-28">
                             @if ($image)
-                                <img src="{{ $image->url }}" alt="{{ $product->name }}" class="aspect-[3/4] w-full object-cover" loading="lazy">
+                                <img src="{{ $image->urlFor('thumb') }}" alt="{{ $product->name }}" class="aspect-[3/4] w-full object-cover" loading="lazy">
                             @else
                                 <div class="aspect-[3/4] flex items-center justify-center">
                                     <span class="sr-only">{{ $product->name }}</span>

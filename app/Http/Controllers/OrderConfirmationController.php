@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Order;
+use App\Support\WhatsAppOrder;
 use Illuminate\View\View;
 
 class OrderConfirmationController extends Controller
@@ -11,6 +12,8 @@ class OrderConfirmationController extends Controller
     {
         $order->load('items');
 
-        return view('order.confirmation', compact('order'));
+        $whatsappUrl = WhatsAppOrder::isEnabled() ? WhatsAppOrder::url($order) : null;
+
+        return view('order.confirmation', compact('order', 'whatsappUrl'));
     }
 }
