@@ -45,4 +45,14 @@ final class Money
 
         return ($negative ? '-' : '').sprintf('%d.%02d', intdiv($cents, 100), $cents % 100);
     }
+
+    public static function format(mixed $value, string $currency = 'MAD'): string
+    {
+        return number_format((float) self::of($value), 2, '.', ',').' '.$currency;
+    }
+
+    public static function isZero(mixed $value): bool
+    {
+        return self::toCents(self::of($value)) === 0;
+    }
 }

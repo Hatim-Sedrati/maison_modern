@@ -116,9 +116,17 @@ class Cart
      */
     public function items(): Collection
     {
-        return collect($this->raw())
-            ->map(function (array $line, string $key): ?array {
-                $product = Product::query()->with('variants')->find($line['product_id']);
+        $raw = $this->raw();
+        $productIds = collect($raw)->pluck('product_id')->unique()->filter()->all();
+        $products = Product::query()
+            ->with(['variants', 'images', 'category'])
+            ->whereIn('id', $productIds)
+            ->get()
+            ->keyBy('id');
+
+        return collect($raw)
+            ->map(function (array $line, string $key) use ($products): ?array {
+                $product = $products->get($line['product_id']);
 
                 if (! $product) {
                     return null;

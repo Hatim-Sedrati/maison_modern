@@ -1,0 +1,89 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../vendor/livewire/livewire/src/Features/SupportPagination/views/*.blade.php';
+@source '../../vendor/filament/**/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Cormorant Garamond', ui-serif, Georgia, serif;
+    --color-ivory: #f7f4ef;
+    --color-ivory-dark: #ede8e0;
+    --color-charcoal: #2c2a28;
+    --color-charcoal-light: #4a4744;
+    --color-muted: #8a8580;
+    --color-warm: #c4b5a3;
+    --color-accent: #6b5d4f;
+}
+
+@layer base {
+    [x-cloak] {
+        display: none !important;
+    }
+
+    body {
+        @apply bg-ivory text-charcoal antialiased;
+        font-family: var(--font-sans);
+    }
+
+    h1, h2, h3, h4 {
+        font-family: var(--font-display);
+        @apply font-normal tracking-wide;
+    }
+
+    a:focus-visible,
+    button:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+        @apply outline-2 outline-offset-2 outline-charcoal;
+    }
+}
+
+@layer components {
+    .btn-primary {
+        @apply inline-flex min-h-12 items-center justify-center bg-charcoal px-6 py-3 text-xs font-medium uppercase tracking-widest text-ivory transition-colors hover:bg-charcoal-light disabled:cursor-not-allowed disabled:opacity-40;
+    }
+
+    .btn-secondary {
+        @apply inline-flex min-h-12 items-center justify-center border border-charcoal px-6 py-3 text-xs font-medium uppercase tracking-widest text-charcoal transition-colors hover:bg-charcoal hover:text-ivory;
+    }
+
+    .input-field {
+        @apply w-full border border-ivory-dark bg-white px-4 py-3 text-base text-charcoal placeholder:text-muted focus:border-charcoal focus:outline-none md:text-sm;
+    }
+
+    .product-card-image {
+        @apply aspect-[3/4] w-full object-cover;
+    }
+
+    .section-title {
+        @apply text-2xl tracking-[0.2em] uppercase md:text-3xl;
+    }
+
+    .nav-link {
+        @apply text-xs uppercase tracking-[0.15em] text-charcoal transition-colors hover:text-muted;
+    }
+
+    .nav-link-active {
+        @apply text-muted;
+    }
+}
+
+@layer utilities {
+    .font-display {
+        font-family: var(--font-display);
+    }
+
+    .scrollbar-none {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .scrollbar-none::-webkit-scrollbar {
+        display: none;
+    }
+}
