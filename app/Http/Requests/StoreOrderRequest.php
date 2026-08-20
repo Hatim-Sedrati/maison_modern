@@ -18,7 +18,7 @@ class StoreOrderRequest extends FormRequest
     {
         return [
             'customer_name' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'max:30'],
+            'phone' => ['required', 'string', 'max:30', 'regex:/^[0-9+\s().\-]{8,20}$/'],
             'city' => ['required', 'string', 'max:100'],
             'address' => ['required', 'string', 'max:1000'],
             'email' => ['nullable', 'email', 'max:255'],

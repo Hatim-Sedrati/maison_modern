@@ -11,6 +11,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Models\ProductVariant;
 use App\Services\Cart;
+use App\Support\OrderConfirmation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -180,7 +181,7 @@ class StorefrontTest extends TestCase
         $this->assertNotNull($order);
         $this->assertSame('cash_on_delivery', $order->payment_method->value);
 
-        $this->get(route('order.confirmation', $order))
+        $this->get(OrderConfirmation::url($order))
             ->assertOk()
             ->assertSee($order->order_number)
             ->assertSee('Cash on Delivery');

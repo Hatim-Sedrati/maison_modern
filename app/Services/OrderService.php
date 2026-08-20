@@ -59,11 +59,19 @@ class OrderService
                     if (! $variant || ! $variant->is_active) {
                         throw new CartException('A product variant in your cart is no longer available.');
                     }
-                } elseif ($product->variants()->where('is_active', true)->exists()) {
-                    throw new CartException('Please select a product variant.');
+                } else {
+                    $hasActiveVariants = ProductVariant::query()
+                        ->where('product_id', $product->id)
+                        ->where('is_active', true)
+                        ->lockForUpdate()
+                        ->exists();
+
+                    if ($hasActiveVariants) {
+                        throw new CartException('Please select a product variant.');
+                    }
                 }
 
-                $stock = $variant ? $variant->stock : $product->stock;
+                $stock = $product->availableStock($variant);
 
                 if ($quantity > $stock) {
                     throw new InsufficientStockException('Not enough stock for '.$product->name.'.');
@@ -119,11 +127,7 @@ class OrderService
                     'total' => $item['line_total'],
                 ]);
 
-                if ($variant) {
-                    $variant->decrement('stock', $item['quantity']);
-                } else {
-                    $product->decrement('stock', $item['quantity']);
-                }
+                $product->decrementAvailableStock($item['quantity'], $variant);
             }
 
             $this->cart->clear();

@@ -17,7 +17,9 @@ Route::get('/category/{category:slug}', [CategoryController::class, 'show'])->na
 Route::get('/product/{product:slug}', [ProductController::class, 'show'])->name('product.show');
 Route::view('/cart', 'cart.index')->name('cart.index');
 Route::view('/checkout', 'checkout.index')->name('checkout.index');
-Route::get('/order/{order}/confirmation', [OrderConfirmationController::class, 'show'])->name('order.confirmation');
+Route::get('/order/{order}/confirmation', [OrderConfirmationController::class, 'show'])
+    ->middleware('signed')
+    ->name('order.confirmation');
 
 Route::view('/contact', 'pages.contact')->name('pages.contact');
 Route::view('/shipping', 'pages.shipping')->name('pages.shipping');

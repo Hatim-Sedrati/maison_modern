@@ -1,6 +1,8 @@
 @extends('layouts.storefront')
 
 @section('title', $category->name)
+@section('meta_description', \Illuminate\Support\Str::limit(trim($category->description ?: $category->name.' — contemporary pieces designed for everyday elegance.'), 160))
+@section('canonical', route('category.show', $category))
 
 @section('content')
     <div class="page-shell py-10 md:py-14">

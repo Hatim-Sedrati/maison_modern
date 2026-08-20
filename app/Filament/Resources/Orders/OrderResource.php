@@ -60,7 +60,7 @@ class OrderResource extends Resource
                 Select::make('status')
                     ->options(OrderStatus::class)
                     ->required()
-                    ->helperText('Update the order as you confirm, pack, ship, or cancel it.'),
+                    ->helperText('Pending → Confirmed → Processing → Shipped → Delivered. Use Cancelled if the order will not be fulfilled.'),
             ]);
     }
 
@@ -121,6 +121,7 @@ class OrderResource extends Resource
                 TextColumn::make('order_number')->searchable()->sortable(),
                 TextColumn::make('customer_name')->searchable(),
                 TextColumn::make('phone')->searchable(),
+                TextColumn::make('address')->limit(40)->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('city')->toggleable(),
                 TextColumn::make('items_count')->counts('items')->label('Items'),
                 TextColumn::make('total')->money('MAD')->sortable(),
@@ -153,5 +154,12 @@ class OrderResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->with('items');
+    }
+
+    public static function getNavigationBadge(): ?string
+    {
+        $count = static::getModel()::query()->where('status', OrderStatus::Pending)->count();
+
+        return $count > 0 ? (string) $count : null;
     }
 }

@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Models\ProductImage;
 use App\Services\CloudinaryImageService;
 use App\Support\WhatsAppOrder;
+use App\Support\OrderConfirmation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
 use Mockery;
@@ -141,7 +142,7 @@ class PhaseFourIntegrationTest extends TestCase
             'quantity' => 1,
         ]);
 
-        $this->get(route('order.confirmation', $order))
+        $this->get(OrderConfirmation::url($order))
             ->assertOk()
             ->assertSee($order->order_number)
             ->assertSee('Cash on Delivery')
@@ -156,7 +157,7 @@ class PhaseFourIntegrationTest extends TestCase
 
         $order = Order::factory()->create();
 
-        $this->get(route('order.confirmation', $order))
+        $this->get(OrderConfirmation::url($order))
             ->assertOk()
             ->assertDontSee('Confirm your order on WhatsApp');
     }

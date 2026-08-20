@@ -35,6 +35,8 @@
 @endphp
 
 @section('title', $pageTitle)
+@section('meta_description', $pageIntro ?: 'Search the Maison Modern collection.')
+@section('canonical', url()->current())
 
 @section('content')
     <div class="page-shell py-10 md:py-14">

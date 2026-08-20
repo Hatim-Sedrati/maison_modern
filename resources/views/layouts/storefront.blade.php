@@ -7,8 +7,33 @@
 
     @php
         $documentTitle = trim($__env->yieldContent('title'));
+        $fullTitle = $documentTitle !== '' ? $documentTitle.' — Maison Modern' : 'Maison Modern';
+        $metaDescription = trim($__env->yieldContent('meta_description')) ?: 'Maison Modern — contemporary Moroccan fashion for everyday elegance.';
+        $canonical = trim($__env->yieldContent('canonical')) ?: url()->current();
+        $ogImage = trim($__env->yieldContent('og_image')) ?: asset('images/logo.png');
+        $ogType = trim($__env->yieldContent('og_type')) ?: 'website';
+        $robots = trim($__env->yieldContent('robots'));
+
+        if ($ogImage !== '' && ! str_starts_with($ogImage, 'http://') && ! str_starts_with($ogImage, 'https://')) {
+            $ogImage = url($ogImage);
+        }
     @endphp
-    <title>{{ $documentTitle !== '' ? $documentTitle.' — Maison Modern' : 'Maison Modern' }}</title>
+    <title>{{ $fullTitle }}</title>
+    <meta name="description" content="{{ $metaDescription }}">
+    <link rel="canonical" href="{{ $canonical }}">
+    @if ($robots !== '')
+        <meta name="robots" content="{{ $robots }}">
+    @endif
+    <meta property="og:site_name" content="Maison Modern">
+    <meta property="og:title" content="{{ $fullTitle }}">
+    <meta property="og:description" content="{{ $metaDescription }}">
+    <meta property="og:url" content="{{ $canonical }}">
+    <meta property="og:type" content="{{ $ogType }}">
+    <meta property="og:image" content="{{ $ogImage }}">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $fullTitle }}">
+    <meta name="twitter:description" content="{{ $metaDescription }}">
+    <meta name="twitter:image" content="{{ $ogImage }}">
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=cormorant-garamond:400,500,600,700|instrument-sans:400,500,600" rel="stylesheet">

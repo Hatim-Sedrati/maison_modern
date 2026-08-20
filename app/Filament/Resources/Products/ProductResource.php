@@ -8,6 +8,7 @@ use App\Filament\Resources\Products\Pages\EditProduct;
 use App\Filament\Resources\Products\Pages\ListProducts;
 use App\Models\Product;
 use BackedEnum;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -31,6 +32,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use UnitEnum;
@@ -79,24 +81,31 @@ class ProductResource extends Resource
                             ->numeric()
                             ->prefix('MAD')
                             ->minValue(0)
-                            ->step(0.01),
+                            ->step(0.01)
+                            ->rule('decimal:0,2'),
                         TextInput::make('compare_at_price')
                             ->numeric()
                             ->prefix('MAD')
                             ->minValue(0)
-                            ->step(0.01),
+                            ->step(0.01)
+                            ->rule('nullable|decimal:0,2'),
                         TextInput::make('stock')
+                            ->required()
                             ->numeric()
+                            ->integer()
                             ->minValue(0)
                             ->default(0)
-                            ->helperText('Used only when this product has no variants.'),
-                        Toggle::make('is_active')->default(true),
+                            ->helperText('Used only when this product has no variants. If variants exist, variant stock is used instead.'),
+                        Toggle::make('is_active')
+                            ->default(true)
+                            ->helperText('Inactive products are hidden from the storefront. Prefer this over deleting products that have been ordered.'),
                         Toggle::make('is_featured')->default(false),
                         TextInput::make('short_description')
                             ->maxLength(255)
                             ->columnSpanFull(),
                         Textarea::make('description')
                             ->rows(5)
+                            ->maxLength(5000)
                             ->columnSpanFull(),
                     ])
                     ->columns(2),
@@ -116,10 +125,12 @@ class ProductResource extends Resource
                                     ->prefix('MAD')
                                     ->minValue(0)
                                     ->step(0.01)
+                                    ->rule('nullable|decimal:0,2')
                                     ->helperText('Leave empty to use the product price.'),
                                 TextInput::make('stock')
                                     ->required()
                                     ->numeric()
+                                    ->integer()
                                     ->minValue(0)
                                     ->default(0),
                                 Toggle::make('is_active')->default(true),
@@ -128,7 +139,22 @@ class ProductResource extends Resource
                             ->collapsible()
                             ->defaultItems(0)
                             ->addActionLabel('Add variant')
-                            ->itemLabel(fn (array $state): string => trim(($state['size'] ?? '').' / '.($state['color'] ?? ''), ' /') ?: ($state['sku'] ?? 'Variant')),
+                            ->itemLabel(fn (array $state): string => trim(($state['size'] ?? '').' / '.($state['color'] ?? ''), ' /') ?: ($state['sku'] ?? 'Variant'))
+                            ->rule(function (): \Closure {
+                                return function (string $attribute, mixed $value, \Closure $fail): void {
+                                    if (! is_array($value)) {
+                                        return;
+                                    }
+
+                                    $combos = collect($value)
+                                        ->map(fn (array $row): string => mb_strtolower(trim(($row['size'] ?? '').'|'.($row['color'] ?? ''))))
+                                        ->filter(fn (string $combo): bool => $combo !== '|');
+
+                                    if ($combos->count() !== $combos->unique()->count()) {
+                                        $fail('Each variant must have a unique size and color combination.');
+                                    }
+                                };
+                            }),
                     ])
                     ->collapsed(),
                 Section::make('Images')
@@ -201,6 +227,11 @@ class ProductResource extends Resource
                 TextColumn::make('category.name')->sortable(),
                 TextColumn::make('gender')->badge(),
                 TextColumn::make('price')->money('MAD')->sortable(),
+                TextColumn::make('inventory')
+                    ->label('Stock')
+                    ->getStateUsing(fn (Product $record): string => $record->hasActiveVariants()
+                        ? (string) $record->variants->sum('stock')
+                        : (string) $record->stock),
                 TextColumn::make('sku')->searchable()->toggleable(),
                 IconColumn::make('is_active')->boolean(),
                 IconColumn::make('is_featured')->boolean(),
@@ -213,8 +244,14 @@ class ProductResource extends Resource
                 TernaryFilter::make('is_featured')->label('Featured'),
             ])
             ->recordActions([
+                Action::make('viewStorefront')
+                    ->label('View')
+                    ->url(fn (Product $record): string => route('product.show', $record))
+                    ->openUrlInNewTab()
+                    ->visible(fn (Product $record): bool => $record->is_active),
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->modalDescription('Only products that have never been ordered can be deleted. Otherwise, deactivate the product to hide it from the storefront.'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -234,6 +271,11 @@ class ProductResource extends Resource
 
     public static function getEloquentQuery(): Builder
     {
-        return parent::getEloquentQuery()->with(['category', 'primaryImage', 'images']);
+        return parent::getEloquentQuery()->with(['category', 'primaryImage', 'images', 'variants']);
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return $record->orderItems()->doesntExist();
     }
 }

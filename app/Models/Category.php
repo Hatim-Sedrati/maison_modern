@@ -27,6 +27,13 @@ class Category extends Model
         return 'slug';
     }
 
+    protected static function booted(): void
+    {
+        static::deleting(function (Category $category): bool {
+            return $category->products()->doesntExist();
+        });
+    }
+
     protected function casts(): array
     {
         return [

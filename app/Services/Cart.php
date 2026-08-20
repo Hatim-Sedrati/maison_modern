@@ -14,6 +14,8 @@ class Cart
 {
     public const SESSION_KEY = 'cart';
 
+    protected bool $pruned = false;
+
     public function __construct(protected SessionManager $session) {}
 
     /**
@@ -96,11 +98,15 @@ class Cart
 
     public function isEmpty(): bool
     {
+        $this->pruneInvalid();
+
         return $this->raw() === [];
     }
 
     public function quantity(): int
     {
+        $this->pruneInvalid();
+
         return (int) collect($this->raw())->sum('quantity');
     }
 
@@ -116,6 +122,8 @@ class Cart
      */
     public function items(): Collection
     {
+        $this->pruneInvalid();
+
         $raw = $this->raw();
         $productIds = collect($raw)->pluck('product_id')->unique()->filter()->all();
         $products = Product::query()
@@ -128,7 +136,7 @@ class Cart
             ->map(function (array $line, string $key) use ($products): ?array {
                 $product = $products->get($line['product_id']);
 
-                if (! $product) {
+                if (! $product || ! $product->is_active) {
                     return null;
                 }
 
@@ -136,6 +144,12 @@ class Cart
 
                 if ($line['variant_id']) {
                     $variant = $product->variants->firstWhere('id', (int) $line['variant_id']);
+
+                    if (! $variant || ! $variant->is_active) {
+                        return null;
+                    }
+                } elseif ($product->hasActiveVariants()) {
+                    return null;
                 }
 
                 $unitPrice = $product->unitPrice($variant);
@@ -164,6 +178,37 @@ class Cart
     public function lineKey(int $productId, ?int $variantId): string
     {
         return sha1($productId.'-'.($variantId ?? '0'));
+    }
+
+    /**
+     * Drop session lines that can no longer be purchased.
+     */
+    public function pruneInvalid(): void
+    {
+        if ($this->pruned) {
+            return;
+        }
+
+        $this->pruned = true;
+
+        $raw = $this->raw();
+        $kept = [];
+
+        foreach ($raw as $key => $line) {
+            try {
+                $this->resolvePurchasable(
+                    (int) $line['product_id'],
+                    isset($line['variant_id']) && $line['variant_id'] !== null ? (int) $line['variant_id'] : null,
+                );
+                $kept[$key] = $line;
+            } catch (CartException) {
+                continue;
+            }
+        }
+
+        if (count($kept) !== count($raw)) {
+            $this->save($kept);
+        }
     }
 
     /**

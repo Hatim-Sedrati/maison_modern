@@ -125,6 +125,10 @@ class AddToCart extends Component
         } catch (CartException $e) {
             $this->message = $e->getMessage();
             $this->messageType = 'error';
+        } catch (\Throwable $e) {
+            report($e);
+            $this->message = 'We could not add this item to your cart. Please try again.';
+            $this->messageType = 'error';
         }
     }
 

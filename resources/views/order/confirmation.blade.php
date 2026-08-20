@@ -1,6 +1,7 @@
 @extends('layouts.storefront')
 
 @section('title', 'Order confirmed')
+@section('robots', 'noindex, nofollow')
 
 @section('content')
     <div class="mx-auto max-w-xl px-5 py-16 md:py-24">

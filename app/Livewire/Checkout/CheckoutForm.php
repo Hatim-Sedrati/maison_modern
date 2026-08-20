@@ -4,9 +4,12 @@ namespace App\Livewire\Checkout;
 
 use App\Exceptions\CartException;
 use App\Exceptions\InsufficientStockException;
+use App\Http\Requests\StoreOrderRequest;
 use App\Services\Cart;
 use App\Services\OrderService;
 use App\Support\Money;
+use App\Support\OrderConfirmation;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 
@@ -39,15 +42,17 @@ class CheckoutForm extends Component
 
     public function placeOrder(OrderService $orderService)
     {
-        $validated = $this->validate([
-            'customer_name' => ['required', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'max:30'],
-            'city' => ['required', 'string', 'max:100'],
-            'address' => ['required', 'string', 'max:1000'],
-            'email' => ['nullable', 'email', 'max:255'],
-            'postal_code' => ['nullable', 'string', 'max:20'],
-            'notes' => ['nullable', 'string', 'max:2000'],
-        ]);
+        $key = 'checkout:'.request()->ip();
+
+        if (RateLimiter::tooManyAttempts($key, 8)) {
+            $this->addError('cart', 'Please wait a moment before trying again.');
+
+            return;
+        }
+
+        RateLimiter::hit($key, 60);
+
+        $validated = $this->validate((new StoreOrderRequest)->rules());
 
         $validated['email'] = $validated['email'] ?: null;
         $validated['postal_code'] = $validated['postal_code'] ?: null;
@@ -56,7 +61,7 @@ class CheckoutForm extends Component
         try {
             $order = $orderService->createFromCart($validated);
 
-            $this->redirect(route('order.confirmation', $order));
+            $this->redirect(OrderConfirmation::url($order));
         } catch (InsufficientStockException|CartException $e) {
             $this->addError('cart', $e->getMessage());
         } catch (ValidationException $e) {

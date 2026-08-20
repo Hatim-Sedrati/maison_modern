@@ -1,6 +1,6 @@
 @extends('layouts.storefront')
 
-@section('title', 'Home')
+@section('meta_description', 'Maison Modern — contemporary Moroccan fashion. Discover the latest collection for women, men, and accessories.')
 
 @section('content')
     @php

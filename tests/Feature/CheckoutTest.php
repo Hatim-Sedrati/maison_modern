@@ -156,6 +156,14 @@ class CheckoutTest extends TestCase
         $this->assertArrayHasKey('phone', $validator->errors()->toArray());
         $this->assertArrayHasKey('city', $validator->errors()->toArray());
         $this->assertArrayHasKey('address', $validator->errors()->toArray());
+
+        $phoneValidator = Validator::make(
+            array_merge($this->customerPayload(), ['phone' => 'not-a-phone']),
+            (new \App\Http\Requests\StoreOrderRequest)->rules(),
+        );
+
+        $this->assertTrue($phoneValidator->fails());
+        $this->assertArrayHasKey('phone', $phoneValidator->errors()->toArray());
     }
 
     public function test_empty_cart_cannot_create_an_order(): void

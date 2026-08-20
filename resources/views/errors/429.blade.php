@@ -1,12 +1,12 @@
 @extends('layouts.storefront')
 
-@section('title', 'Page not found')
+@section('title', 'Too many requests')
 @section('robots', 'noindex, follow')
 
 @section('content')
     <x-empty-state
-        title="Page not found"
-        text="Let's get you back to Maison Modern."
+        title="Please wait a moment"
+        text="Too many requests were made. Try again shortly."
         :href="route('home')"
         action="Return Home"
     />

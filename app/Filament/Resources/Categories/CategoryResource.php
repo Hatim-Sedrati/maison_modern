@@ -24,6 +24,7 @@ use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use UnitEnum;
 
@@ -60,11 +61,14 @@ class CategoryResource extends Resource
                             ->columnSpanFull(),
                         FileUpload::make('image')
                             ->image()
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp'])
+                            ->maxSize(5120)
                             ->directory('categories')
                             ->disk('public')
                             ->visibility('public'),
                         Toggle::make('is_active')
-                            ->default(true),
+                            ->default(true)
+                            ->helperText('Inactive categories are hidden from storefront navigation.'),
                     ])
                     ->columns(2),
             ]);
@@ -85,7 +89,8 @@ class CategoryResource extends Resource
             ])
             ->recordActions([
                 EditAction::make(),
-                DeleteAction::make(),
+                DeleteAction::make()
+                    ->modalDescription('Categories that still contain products cannot be deleted. Move or deactivate those products first.'),
             ])
             ->toolbarActions([
                 BulkActionGroup::make([
@@ -101,5 +106,10 @@ class CategoryResource extends Resource
             'create' => CreateCategory::route('/create'),
             'edit' => EditCategory::route('/{record}/edit'),
         ];
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return $record->products()->doesntExist();
     }
 }

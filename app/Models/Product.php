@@ -77,6 +77,13 @@ class Product extends Model
         return $this->hasMany(OrderItem::class);
     }
 
+    protected static function booted(): void
+    {
+        static::deleting(function (Product $product): bool {
+            return $product->orderItems()->doesntExist();
+        });
+    }
+
     public function scopeActive(Builder $query): Builder
     {
         return $query->where('is_active', true);
@@ -125,5 +132,20 @@ class Product extends Model
         }
 
         return Money::of($this->price);
+    }
+
+    public function decrementAvailableStock(int $quantity, ?ProductVariant $variant = null): void
+    {
+        if ($quantity < 1) {
+            return;
+        }
+
+        if ($variant) {
+            $variant->decrement('stock', $quantity);
+
+            return;
+        }
+
+        $this->decrement('stock', $quantity);
     }
 }

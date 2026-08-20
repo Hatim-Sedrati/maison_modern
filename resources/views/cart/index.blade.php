@@ -1,6 +1,7 @@
 @extends('layouts.storefront')
 
 @section('title', 'Cart')
+@section('robots', 'noindex, nofollow')
 
 @section('content')
     <div class="page-shell py-10 md:py-16">

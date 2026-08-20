@@ -21,6 +21,9 @@ class CartPage extends Component
             $this->dispatch('cart-updated');
         } catch (InsufficientStockException|CartException $e) {
             $this->error = $e->getMessage();
+        } catch (\Throwable $e) {
+            report($e);
+            $this->error = 'We could not update your cart. Please try again.';
         }
     }
 

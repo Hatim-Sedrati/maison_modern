@@ -1,6 +1,15 @@
 @extends('layouts.storefront')
 
+@php
+    $seoImage = $product->images->firstWhere('is_primary', true) ?? $product->images->first();
+    $seoDescription = \Illuminate\Support\Str::limit(trim(strip_tags($product->short_description ?: $product->description ?: $product->name.' — Maison Modern.')), 160);
+@endphp
+
 @section('title', $product->name)
+@section('meta_description', $seoDescription)
+@section('og_type', 'product')
+@section('canonical', route('product.show', $product))
+@section('og_image', $seoImage?->urlFor('card') ?? '')
 
 @section('content')
     <div class="page-shell py-8 md:py-14">

@@ -30,6 +30,11 @@ class Order extends Model
     /** @use HasFactory<OrderFactory> */
     use HasFactory;
 
+    public function getRouteKeyName(): string
+    {
+        return 'order_number';
+    }
+
     protected function casts(): array
     {
         return [
