@@ -34,6 +34,13 @@ class CartPage extends Component
         $this->dispatch('cart-updated');
     }
 
+    public function clearCart(Cart $cart): void
+    {
+        $this->error = null;
+        $cart->clear();
+        $this->dispatch('cart-updated');
+    }
+
     public function render(Cart $cart)
     {
         $items = $cart->items();

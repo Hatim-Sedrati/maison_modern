@@ -2,6 +2,7 @@
 
 @section('title', 'Checkout')
 @section('robots', 'noindex, nofollow')
+@section('canonical', route('checkout.index'))
 
 @section('content')
     <div class="page-shell py-10 md:py-16">

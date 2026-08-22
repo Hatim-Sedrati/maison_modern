@@ -6,8 +6,11 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     @php
-        $documentTitle = trim($__env->yieldContent('title'));
-        $fullTitle = $documentTitle !== '' ? $documentTitle.' — Maison Modern' : 'Maison Modern';
+        $fullTitle = trim($__env->yieldContent('title_full'));
+        if ($fullTitle === '') {
+            $documentTitle = trim($__env->yieldContent('title'));
+            $fullTitle = $documentTitle !== '' ? $documentTitle.' — Maison Modern' : 'Maison Modern';
+        }
         $metaDescription = trim($__env->yieldContent('meta_description')) ?: 'Maison Modern — contemporary Moroccan fashion for everyday elegance.';
         $canonical = trim($__env->yieldContent('canonical')) ?: url()->current();
         $ogImage = trim($__env->yieldContent('og_image')) ?: asset('images/logo.png');
@@ -34,6 +37,8 @@
     <meta name="twitter:title" content="{{ $fullTitle }}">
     <meta name="twitter:description" content="{{ $metaDescription }}">
     <meta name="twitter:image" content="{{ $ogImage }}">
+    <x-json-ld :data="\App\Support\StructuredData::graph()" />
+    @stack('structured_data')
 
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=cormorant-garamond:400,500,600,700|instrument-sans:400,500,600" rel="stylesheet">

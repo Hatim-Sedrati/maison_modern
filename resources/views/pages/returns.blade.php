@@ -1,18 +1,32 @@
 @extends('layouts.storefront')
 
 @section('title', 'Returns')
+@section('meta_description', 'Request a Maison Modern return within 1 day of delivery. Used or customer-damaged items cannot be returned. Approved returns may be an exchange or a cash refund.')
+@section('canonical', route('pages.returns'))
 
 @section('content')
-    <article class="mx-auto max-w-xl px-5 py-16 md:py-24">
-        <x-breadcrumbs class="mb-10" :items="[
+    <x-info-page
+        title="Returns"
+        intro="A return may be requested within 1 day after you receive your order."
+        :crumbs="[
             ['label' => 'Home', 'href' => route('home')],
             ['label' => 'Returns'],
-        ]" />
-        <p class="text-[11px] uppercase tracking-[0.28em] text-muted">Information</p>
-        <h1 class="mt-3 section-title">Returns</h1>
-        <div class="mt-8 space-y-4 text-sm leading-relaxed text-charcoal-light">
-            <p>If an item is not right, contact us after delivery and we will help you with the next step.</p>
-            <p>Please keep the piece unworn, with its original packaging, until we have confirmed the return.</p>
-        </div>
-    </article>
+        ]"
+    >
+        <x-info-section title="When to request a return">
+            <p>You may request a return within 1 day after receiving the order.</p>
+        </x-info-section>
+
+        <x-info-section title="Items we cannot return">
+            <p>Items that have been used or damaged by the customer cannot be returned.</p>
+        </x-info-section>
+
+        <x-info-section title="If the return is approved">
+            <p>For an approved return, Maison Modern offers either an exchange or a cash refund.</p>
+        </x-info-section>
+
+        <x-info-section title="How to request a return">
+            <p>Request a return through the <a href="{{ route('pages.contact') }}" class="underline underline-offset-4 text-charcoal">Contact</a> page within 1 day after receiving the order.</p>
+        </x-info-section>
+    </x-info-page>
 @endsection

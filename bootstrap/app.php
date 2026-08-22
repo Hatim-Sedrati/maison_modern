@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->trustProxies(at: '*');
+        $middleware->append(SecurityHeaders::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->render(function (NotFoundHttpException $e, Request $request) {
@@ -36,5 +38,18 @@ return Application::configure(basePath: dirname(__DIR__))
                 429 => response()->view('errors.429', status: 429),
                 default => null,
             };
+        });
+
+        $exceptions->render(function (\Throwable $e, Request $request) {
+            if (
+                app()->hasDebugModeEnabled()
+                || $request->is('admin*')
+                || $request->expectsJson()
+                || $e instanceof HttpException
+            ) {
+                return null;
+            }
+
+            return response()->view('errors.500', status: 500);
         });
     })->create();

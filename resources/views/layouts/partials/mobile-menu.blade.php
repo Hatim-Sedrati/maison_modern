@@ -54,8 +54,10 @@
             @endif
 
             <div class="mt-auto border-t border-sand pt-6">
-                <a href="{{ route('pages.shipping') }}" class="block min-h-11 py-2 text-sm text-charcoal-light" @click="menuOpen = false">Delivery</a>
+                <a href="{{ route('pages.delivery') }}" class="block min-h-11 py-2 text-sm text-charcoal-light" @click="menuOpen = false">Delivery</a>
+                <a href="{{ route('pages.cash-on-delivery') }}" class="block min-h-11 py-2 text-sm text-charcoal-light" @click="menuOpen = false">Cash on Delivery</a>
                 <a href="{{ route('pages.contact') }}" class="block min-h-11 py-2 text-sm text-charcoal-light" @click="menuOpen = false">Contact</a>
+                <a href="{{ route('pages.returns') }}" class="block min-h-11 py-2 text-sm text-charcoal-light" @click="menuOpen = false">Returns</a>
             </div>
         </div>
     </nav>

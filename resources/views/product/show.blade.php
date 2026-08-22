@@ -11,6 +11,12 @@
 @section('canonical', route('product.show', $product))
 @section('og_image', $seoImage?->urlFor('card') ?? '')
 
+@push('structured_data')
+    @if ($productSchema = \App\Support\StructuredData::productDocument($product))
+        <x-json-ld :data="$productSchema" />
+    @endif
+@endpush
+
 @section('content')
     <div class="page-shell py-8 md:py-14">
         <x-breadcrumbs class="mb-8" :items="array_values(array_filter([
@@ -49,12 +55,14 @@
                         <h2 class="text-[11px] uppercase tracking-[0.16em]">Delivery</h2>
                         <p class="mt-2 text-sm leading-relaxed text-charcoal-light">
                             We deliver across Morocco. Delivery fees are calculated at checkout and confirmed with your order.
+                            <a href="{{ route('pages.delivery') }}" class="underline underline-offset-4">Delivery information</a>
                         </p>
                     </div>
                     <div>
                         <h2 class="text-[11px] uppercase tracking-[0.16em]">Cash on Delivery</h2>
                         <p class="mt-2 text-sm leading-relaxed text-charcoal-light">
                             Payment happens when your order arrives. No online payment is required.
+                            <a href="{{ route('pages.cash-on-delivery') }}" class="underline underline-offset-4">How payment works</a>
                         </p>
                     </div>
                 </div>

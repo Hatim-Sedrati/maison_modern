@@ -34,6 +34,42 @@ class StorefrontTest extends TestCase
         $this->get(route('pages.faq'))->assertOk();
     }
 
+    public function test_information_pages_are_available_and_linked_from_the_footer(): void
+    {
+        $this->get(route('pages.delivery'))
+            ->assertOk()
+            ->assertSee('Maison Modern delivers to all of Morocco')
+            ->assertSee('3–7 days');
+
+        $this->get('/delivery')->assertOk();
+        $this->get('/cash-on-delivery')
+            ->assertOk()
+            ->assertSee('Cash on Delivery')
+            ->assertSee('You pay when your order arrives');
+
+        $this->get(route('pages.contact'))
+            ->assertOk()
+            ->assertSee('+212 6 32 65 26 92')
+            ->assertSee('tel:+212632652692', false)
+            ->assertSee('https://wa.me/212632652692', false)
+            ->assertDontSee('To be completed')
+            ->assertDontSee('SHOP_CONTACT_PHONE')
+            ->assertDontSee('SHOP_CONTACT_EMAIL');
+
+        $this->get(route('pages.returns'))
+            ->assertOk()
+            ->assertSee('within 1 day')
+            ->assertSee('used or damaged by the customer')
+            ->assertSee('exchange')
+            ->assertSee('cash refund');
+
+        $home = $this->get(route('home'))->assertOk();
+        $home->assertSee(route('pages.delivery'), false);
+        $home->assertSee(route('pages.cash-on-delivery'), false);
+        $home->assertSee(route('pages.contact'), false);
+        $home->assertSee(route('pages.returns'), false);
+    }
+
     public function test_homepage_and_shop_use_database_products(): void
     {
         $product = Product::factory()->create(['name' => 'Atlas Linen Shirt', 'is_featured' => true]);

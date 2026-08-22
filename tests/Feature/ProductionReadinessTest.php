@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\OrderStatus;
 use App\Exceptions\InsufficientStockException;
 use App\Models\Order;
 use App\Models\Product;
@@ -95,5 +96,20 @@ class ProductionReadinessTest extends TestCase
             ->assertNotFound()
             ->assertSee('Page not found')
             ->assertSee('Maison Modern');
+
+        $this->assertTrue(view()->exists('errors.403'));
+        $this->assertTrue(view()->exists('errors.419'));
+        $this->assertTrue(view()->exists('errors.429'));
+        $this->assertTrue(view()->exists('errors.500'));
+    }
+
+    public function test_order_status_can_be_updated_through_each_admin_status(): void
+    {
+        $order = Order::factory()->create(['status' => OrderStatus::Pending]);
+
+        foreach (OrderStatus::cases() as $status) {
+            $order->update(['status' => $status]);
+            $this->assertSame($status, $order->fresh()->status);
+        }
     }
 }

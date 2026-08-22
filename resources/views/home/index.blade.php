@@ -1,24 +1,30 @@
 @extends('layouts.storefront')
 
+@php
+    $heroImage = $heroProduct?->images->firstWhere('is_primary', true) ?? $heroProduct?->images->first();
+    $firstImage = function ($products) {
+        $product = $products->first(fn ($item) => $item->images->isNotEmpty());
+
+        return $product
+            ? ($product->images->firstWhere('is_primary', true) ?? $product->images->first())
+            : null;
+    };
+    $womenImage = $firstImage($women);
+    $menImage = $firstImage($men);
+    $accessoriesImage = $firstImage($accessories);
+    $editorialImage = $heroImage
+        ?? $firstImage($featured)
+        ?? $firstImage($newArrivals);
+@endphp
+
+@section('title_full', 'Maison Modern — Moroccan Fashion')
 @section('meta_description', 'Maison Modern — contemporary Moroccan fashion. Discover the latest collection for women, men, and accessories.')
+@section('canonical', route('home'))
+@if ($heroImage)
+    @section('og_image', $heroImage->urlFor('card'))
+@endif
 
 @section('content')
-    @php
-        $heroImage = $heroProduct?->images->firstWhere('is_primary', true) ?? $heroProduct?->images->first();
-        $firstImage = function ($products) {
-            $product = $products->first(fn ($item) => $item->images->isNotEmpty());
-
-            return $product
-                ? ($product->images->firstWhere('is_primary', true) ?? $product->images->first())
-                : null;
-        };
-        $womenImage = $firstImage($women);
-        $menImage = $firstImage($men);
-        $accessoriesImage = $firstImage($accessories);
-        $editorialImage = $heroImage
-            ?? $firstImage($featured)
-            ?? $firstImage($newArrivals);
-    @endphp
 
     <section class="relative overflow-hidden bg-ivory">
         <div class="mx-auto grid max-w-7xl lg:grid-cols-2">
@@ -147,15 +153,15 @@
     <section class="bg-ivory">
         <div class="page-shell grid gap-10 py-14 md:grid-cols-3 md:gap-8 md:py-16">
             <div>
-                <h2 class="text-[11px] uppercase tracking-[0.18em]">Delivery</h2>
+                <h2 class="text-[11px] uppercase tracking-[0.18em]"><a href="{{ route('pages.delivery') }}" class="hover:text-muted">Delivery</a></h2>
                 <p class="mt-3 text-sm leading-relaxed text-charcoal-light">We deliver across Morocco. Fees are shown before you confirm your order.</p>
             </div>
             <div>
-                <h2 class="text-[11px] uppercase tracking-[0.18em]">Cash on Delivery</h2>
+                <h2 class="text-[11px] uppercase tracking-[0.18em]"><a href="{{ route('pages.cash-on-delivery') }}" class="hover:text-muted">Cash on Delivery</a></h2>
                 <p class="mt-3 text-sm leading-relaxed text-charcoal-light">Pay when your order arrives. No online payment is required.</p>
             </div>
             <div>
-                <h2 class="text-[11px] uppercase tracking-[0.18em]">Questions?</h2>
+                <h2 class="text-[11px] uppercase tracking-[0.18em]"><a href="{{ route('pages.contact') }}" class="hover:text-muted">Questions?</a></h2>
                 <p class="mt-3 text-sm leading-relaxed text-charcoal-light">We confirm every order by phone. <a href="{{ route('pages.contact') }}" class="underline underline-offset-4">Contact us</a>.</p>
             </div>
         </div>

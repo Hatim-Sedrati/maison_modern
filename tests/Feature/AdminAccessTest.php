@@ -35,4 +35,18 @@ class AdminAccessTest extends TestCase
             ->get('/admin')
             ->assertOk();
     }
+
+    public function test_admin_can_log_out(): void
+    {
+        $admin = User::factory()->create();
+
+        $this->actingAs($admin)
+            ->post(route('filament.admin.auth.logout'))
+            ->assertRedirect();
+
+        $this->assertGuest();
+
+        $this->get('/admin')
+            ->assertRedirect('/admin/login');
+    }
 }

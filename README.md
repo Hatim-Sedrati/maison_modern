@@ -48,7 +48,7 @@ Required:
 | `APP_ENV` | `local` or `production` |
 | `APP_KEY` | `php artisan key:generate` |
 | `APP_DEBUG` | `true` locally only. **Must be `false` in production.** |
-| `APP_URL` | Public URL, `https://your-domain.com` in production |
+| `APP_URL` | Public URL, `https://your-domain.com` in production. Used for canonical URLs and the sitemap. |
 | `DB_CONNECTION` | `mysql` |
 | `DB_HOST` | Database host |
 | `DB_PORT` | `3306` |
@@ -61,7 +61,7 @@ Shop:
 | Variable | Notes |
 |---|---|
 | `SHOP_DELIVERY_FEE` | Server-side delivery fee in MAD, e.g. `30.00` |
-| `WHATSAPP_NUMBER` | International number, e.g. `212612345678`. Leave empty to hide the WhatsApp CTA. |
+| `WHATSAPP_NUMBER` | International number, e.g. `212612345678`. Leave empty to hide WhatsApp CTAs on order confirmation. |
 
 Cloudinary (optional locally; recommended in production):
 
@@ -102,6 +102,18 @@ php artisan view:cache
 
 If you change `.env`, run `php artisan config:clear` before recaching.
 
+## After deployment — search engines
+
+Implementation does not make Google or Bing show the site immediately. After the public URL is live:
+
+1. Confirm `APP_URL` is the real HTTPS origin and regenerate caches if you changed it.
+2. Open `https://your-domain.com/robots.txt` and `https://your-domain.com/sitemap.xml`.
+3. Verify the site in [Google Search Console](https://search.google.com/search-console) and submit the sitemap.
+4. Verify the site in [Bing Webmaster Tools](https://www.bing.com/webmasters) and submit the sitemap.
+5. Request indexing for the homepage if the tools offer it.
+
+Do not expect a ranking from these steps alone.
+
 ## Storage and images
 
 - `php artisan storage:link` is required for locally stored images.
@@ -119,6 +131,17 @@ After checkout, customers can confirm the order in WhatsApp when `WHATSAPP_NUMBE
 - Prices, stock, and totals are calculated on the server.
 - Order confirmation URLs are signed.
 - Historical order items keep product name, price, quantity, and variant snapshots.
+
+## Search engines
+
+Public storefront pages include titles, meta descriptions, canonical URLs, Open Graph tags, and Organization / WebSite structured data. Product pages add Product structured data from real catalog data only (no invented ratings or reviews).
+
+- `GET /robots.txt` allows the storefront and disallows `/admin`, `/cart`, `/checkout`, `/livewire`, and `/order/`
+- `GET /sitemap.xml` lists the homepage, shop, active categories, active products, and information pages
+- Cart, checkout, and order confirmation are `noindex`
+- `/shipping` canonicalizes to `/delivery`
+
+This prepares the site to be crawled. It does not place Maison Modern in search results by itself.
 
 ## Tests
 
@@ -148,6 +171,8 @@ Storefront:
 - [ ] Confirmation
 - [ ] 404
 - [ ] Mobile
+- [ ] robots.txt
+- [ ] sitemap.xml
 
 Catalog:
 

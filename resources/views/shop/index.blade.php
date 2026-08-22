@@ -23,6 +23,17 @@
 
     $isSearch = filled($filters['search']);
 
+    $canonicalParams = array_filter([
+        'gender' => $filters['gender'] ?? null,
+        'category' => $filters['category'] ?? null,
+        'sort' => (($filters['sort'] ?? 'featured') !== 'featured') ? ($filters['sort'] ?? null) : null,
+        'page' => $products->currentPage() > 1 ? $products->currentPage() : null,
+    ], fn ($value) => $value !== null && $value !== '');
+
+    $canonicalUrl = $isSearch
+        ? route('shop.index')
+        : route('shop.index', $canonicalParams);
+
     $breadcrumbs = [
         ['label' => 'Home', 'href' => route('home')],
     ];
@@ -36,7 +47,8 @@
 
 @section('title', $pageTitle)
 @section('meta_description', $pageIntro ?: 'Search the Maison Modern collection.')
-@section('canonical', url()->current())
+@section('canonical', $canonicalUrl)
+@section('robots', $isSearch ? 'noindex, follow' : '')
 
 @section('content')
     <div class="page-shell py-10 md:py-14">

@@ -17,9 +17,14 @@ class WhatsAppOrder
         return preg_replace('/\D+/', '', (string) config('shop.whatsapp_number')) ?? '';
     }
 
+    public static function chatUrl(): string
+    {
+        return 'https://wa.me/'.self::number();
+    }
+
     public static function url(Order $order): string
     {
-        return 'https://wa.me/'.self::number().'?text='.rawurlencode(self::message($order));
+        return self::chatUrl().'?text='.rawurlencode(self::message($order));
     }
 
     public static function message(Order $order): string

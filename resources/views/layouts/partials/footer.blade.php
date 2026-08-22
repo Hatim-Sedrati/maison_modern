@@ -22,8 +22,8 @@
         <div>
             <h2 class="mb-5 text-[11px] font-medium uppercase tracking-[0.18em]">Information</h2>
             <ul class="space-y-3 text-sm text-charcoal-light">
-                <li><a href="{{ route('pages.shipping') }}" class="transition-colors hover:text-charcoal">Delivery</a></li>
-                <li><a href="{{ route('pages.shipping') }}" class="transition-colors hover:text-charcoal">Cash on Delivery</a></li>
+                <li><a href="{{ route('pages.delivery') }}" class="transition-colors hover:text-charcoal">Delivery</a></li>
+                <li><a href="{{ route('pages.cash-on-delivery') }}" class="transition-colors hover:text-charcoal">Cash on Delivery</a></li>
                 <li><a href="{{ route('pages.contact') }}" class="transition-colors hover:text-charcoal">Contact</a></li>
                 <li><a href="{{ route('pages.returns') }}" class="transition-colors hover:text-charcoal">Returns</a></li>
             </ul>

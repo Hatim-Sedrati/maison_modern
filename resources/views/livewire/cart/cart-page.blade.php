@@ -106,6 +106,13 @@
 
                 <a href="{{ route('checkout.index') }}" class="btn-primary mt-6 w-full">Proceed to Checkout</a>
                 <a href="{{ route('shop.index') }}" class="btn-ghost mt-3 w-full">Continue Shopping</a>
+                <button
+                    type="button"
+                    wire:click="clearCart"
+                    class="mt-4 w-full text-center text-[11px] uppercase tracking-[0.16em] text-muted transition-colors hover:text-charcoal"
+                >
+                    Empty cart
+                </button>
             </aside>
         </div>
     @endif

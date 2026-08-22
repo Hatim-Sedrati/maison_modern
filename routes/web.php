@@ -4,8 +4,12 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\OrderConfirmationController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\SeoController;
 use App\Http\Controllers\ShopController;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/robots.txt', [SeoController::class, 'robots'])->name('seo.robots');
+Route::get('/sitemap.xml', [SeoController::class, 'sitemap'])->name('seo.sitemap');
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
@@ -22,6 +26,8 @@ Route::get('/order/{order}/confirmation', [OrderConfirmationController::class, '
     ->name('order.confirmation');
 
 Route::view('/contact', 'pages.contact')->name('pages.contact');
-Route::view('/shipping', 'pages.shipping')->name('pages.shipping');
+Route::view('/delivery', 'pages.delivery')->name('pages.delivery');
+Route::view('/shipping', 'pages.delivery')->name('pages.shipping');
+Route::view('/cash-on-delivery', 'pages.cash-on-delivery')->name('pages.cash-on-delivery');
 Route::view('/returns', 'pages.returns')->name('pages.returns');
 Route::view('/faq', 'pages.faq')->name('pages.faq');

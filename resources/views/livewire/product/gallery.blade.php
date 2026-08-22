@@ -38,7 +38,7 @@
                         <div class="w-full shrink-0">
                             <img
                                 src="{{ $image->urlFor('gallery') }}"
-                                alt="{{ $product->name }}{{ $count > 1 ? ' — image '.($index + 1) : '' }}"
+                                alt="{{ $product->name }}{{ $count > 1 ? ', view '.($index + 1) : '' }}"
                                 class="aspect-[3/4] w-full object-cover"
                                 @if ($index === 0) fetchpriority="high" loading="eager" @else loading="lazy" @endif
                                 decoding="async"
